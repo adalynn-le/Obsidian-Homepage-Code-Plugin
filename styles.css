@@ -1,8 +1,36 @@
-/*
+/* Homebase header */
 
-This CSS file will be included with your plugin, and
-available in the app when your plugin is enabled.
+.homebase-header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 18px;
+  padding: 4px 0;
+}
 
-If your plugin does not need CSS, delete this file.
+.homebase-date {
+  font-family: var(--font-monospace);
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
 
-*/
+.homebase-clock {
+  font-family: var(--font-monospace);
+  font-size: clamp(24px, 3vw, 36px);
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  color: var(--color-accent);
+}
+.markdown-preview-view.homebase .inline-title,
+.markdown-source-view.homebase .inline-title {
+    display: none !important;
+}
+.markdown-preview-view.homebase .markdown-preview-sizer {
+    max-width: none !important;
+    width: 100% !important;
+}
+.homebase .metadata-container {
+    display: none !important;
+}
