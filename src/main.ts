@@ -1,4 +1,4 @@
-import { Plugin } from "obsidian";
+import { Plugin, TFile } from "obsidian";
 
 export default class HomebasePlugin extends Plugin {
   settings: any;
@@ -106,6 +106,89 @@ const renderResults = (results: SearchResult[]) => {
   });
 
   suggestions.addClass("is-visible");
+const calendarContainer = el.createDiv({
+  cls: "homebase-calendar"
+});
+
+const now = new Date();
+const year = now.getFullYear();
+const month = now.getMonth();
+
+const monthName = now.toLocaleDateString("en-US", {
+  month: "long"
+});
+
+const calendarTitle = calendarContainer.createDiv({
+  cls: "homebase-calendar-title"
+});
+
+calendarTitle.setText(`${monthName.toUpperCase()} ${year}`);
+
+const calendarGrid = calendarContainer.createDiv({
+  cls: "homebase-calendar-grid"
+});
+
+const weekdays = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+
+weekdays.forEach(day => {
+  const weekday = calendarGrid.createDiv({
+    cls: "homebase-calendar-weekday"
+  });
+
+  weekday.setText(day);
+});
+
+const firstDay = new Date(year, month, 1).getDay();
+const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+for (let i = 0; i < firstDay; i++) {
+  calendarGrid.createDiv({
+    cls: "homebase-calendar-empty"
+  });
+}
+
+for (let day = 1; day <= daysInMonth; day++) {
+  const dayButton = calendarGrid.createDiv({
+    cls: "homebase-calendar-day"
+  });
+
+  dayButton.setText(String(day));
+
+  if (
+    day === now.getDate() &&
+    month === now.getMonth() &&
+    year === now.getFullYear()
+  ) {
+    dayButton.addClass("is-today");
+  }
+
+  const monthString = String(month + 1).padStart(2, "0");
+  const dayString = String(day).padStart(2, "0");
+
+  const notePath =
+    `Reflections/Daily Notes ${year}/${year}-${monthString}-${dayString}.md`;
+
+  const noteExists = this.app.vault.getAbstractFileByPath(notePath);
+
+  if (noteExists) {
+    dayButton.addClass("has-note");
+  }
+
+  dayButton.addEventListener("click", async () => {
+    let file = this.app.vault.getAbstractFileByPath(notePath);
+
+    if (!file) {
+      file = await this.app.vault.create(
+        notePath,
+        `# ${year}-${monthString}-${dayString}\n\n`
+      );
+    }
+
+    if (file instanceof TFile) {
+      await this.app.workspace.getLeaf(false).openFile(file);
+    }
+  });
+}
 };
 const commandManager = (this.app as any).commands;
 
