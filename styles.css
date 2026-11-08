@@ -150,13 +150,9 @@
     color: var(--text-muted);
     font-size: 12px;
 }
-/* ==========================================
-   HOMEBASE CALENDAR
-   ========================================== */
-
 .homebase-calendar {
     width: 100%;
-    max-width: 480px;
+    max-width: 275px;
     margin-top: 28px;
 }
 
@@ -171,7 +167,7 @@
 .homebase-calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 4px;
+    gap: 2px;
 }
 
 .homebase-calendar-weekday {
@@ -211,7 +207,6 @@
     border-color: var(--background-modifier-border);
 }
 
-/* TODAY */
 .homebase-calendar-day.is-today {
     color: var(--text-accent);
     border-color: var(--color-accent);
@@ -229,4 +224,87 @@
 
 .homebase-calendar-day.has-note {
     font-weight: 600;
+}
+.homebase-calendar-area {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    border: 2px solid var(--background-modifier-border);
+    width: 100%;
+    max-width: 900px;
+    justify-content: center;
+    justify-items: center;
+    margin-top: 28px;
+    padding: 20px;
+    width: min-content;
+}
+
+
+.homebase-calendar {
+    width: 380px;
+    flex-shrink: 0;
+}
+
+
+.homebase-calendar::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: -14px;
+
+    width: 1px;
+    height: 100%;
+
+    background: var(--background-modifier-border);
+}
+
+
+
+.homebase-life-calendar {
+    flex: 1;
+    min-width: 0;
+    max-width: 300px;
+}
+.homebase-life-calendar-countdown {
+    font-family: var(--font-monospace);
+    font-size: 10px;
+    color: var(--text-muted);
+}
+
+
+
+.homebase-life-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(15, 10px);
+    gap: 5px 0px;
+    margin: 0;
+    padding: 0
+}
+
+.homebase-life-calendar-dot {
+    width: 6px;
+    height: 6px;
+
+    justify-self: center;
+
+    border-radius: 50%;
+
+    background: var(--background-modifier-border);
+
+    transition:
+        background-color 0.15s ease,
+        box-shadow 0.15s ease,
+        transform 0.15s ease;
+}
+
+
+
+.homebase-life-calendar-dot.is-filled {
+    background: var(--text-muted);
+}
+
+
+
+.homebase-life-calendar-dot.is-today {
+    background: var(--color-accent);
 }
