@@ -6,11 +6,8 @@ export default class HomebasePlugin extends Plugin {
   async onload() {
     this.registerMarkdownCodeBlockProcessor(
       "homebase",
-      (source, el) => {
+      async (source, el) => {
 
-        // ==========================================
-        // HOMEBASE HEADER
-        // ==========================================
 
         const header = el.createDiv({
           cls: "homebase-header"
@@ -25,9 +22,6 @@ export default class HomebasePlugin extends Plugin {
         });
 
 
-        // ==========================================
-        // HOMEBASE COMMAND BAR
-        // ==========================================
 
         const searchContainer = header.createDiv({
           cls: "homebase-search"
@@ -52,11 +46,6 @@ export default class HomebasePlugin extends Plugin {
         };
 
         let currentResults: SearchResult[] = [];
-
-
-        // ==========================================
-        // SEARCH RESULT HELPERS
-        // ==========================================
 
         const closeSuggestions = () => {
           suggestions.empty();
@@ -129,19 +118,7 @@ export default class HomebasePlugin extends Plugin {
 
           suggestions.addClass("is-visible");
         };
-
-
-        // ==========================================
-        // COMMAND MANAGER
-        // ==========================================
-
         const commandManager = (this.app as any).commands;
-
-
-        // ==========================================
-        // SHOW COMMAND SHORTCUTS
-        // ==========================================
-
         const showShortcuts = () => {
           const commands = commandManager.listCommands();
 
@@ -163,26 +140,13 @@ export default class HomebasePlugin extends Plugin {
 
           renderResults(shortcuts);
         };
-
-
-        // ==========================================
-        // SEARCH
-        // ==========================================
-
         const search = (value: string) => {
           const query = value.trim().toLowerCase();
 
-          // Empty search
           if (!query) {
             showShortcuts();
             return;
           }
-
-
-          // ----------------------------------------
-          // COMMAND MODE
-          // ----------------------------------------
-
           if (query.startsWith(">")) {
             const term = query.slice(1).trim();
 
@@ -205,12 +169,6 @@ export default class HomebasePlugin extends Plugin {
 
             return;
           }
-
-
-          // ----------------------------------------
-          // TAG MODE
-          // ----------------------------------------
-
           if (query.startsWith("#")) {
             const tag = query.slice(1);
 
@@ -263,11 +221,6 @@ export default class HomebasePlugin extends Plugin {
             return;
           }
 
-
-          // ----------------------------------------
-          // FOLDER MODE
-          // ----------------------------------------
-
           if (query.startsWith("@")) {
             const folder = query.slice(1);
 
@@ -294,11 +247,6 @@ export default class HomebasePlugin extends Plugin {
 
             return;
           }
-
-
-          // ----------------------------------------
-          // NORMAL NOTE SEARCH
-          // ----------------------------------------
 
           const results = this.app.vault
             .getMarkdownFiles()
@@ -335,12 +283,6 @@ export default class HomebasePlugin extends Plugin {
 
           renderResults(results);
         };
-
-
-        // ==========================================
-        // SEARCH INPUT EVENTS
-        // ==========================================
-
         searchInput.addEventListener("focus", () => {
           search(searchInput.value);
         });
@@ -407,10 +349,6 @@ export default class HomebasePlugin extends Plugin {
           );
         });
 
-
-        // ==========================================
-        // DATE + CLOCK
-        // ==========================================
 
         const updateTime = () => {
           const now = new Date();
@@ -705,6 +643,334 @@ export default class HomebasePlugin extends Plugin {
             dot.addClass("is-today");
           }
         }
+const dailyNoteDate = new Date();
+
+const dailyNoteYear = dailyNoteDate.getFullYear();
+const dailyNoteMonth = String(dailyNoteDate.getMonth() + 1).padStart(2, "0");
+const dailyNoteDay = String(dailyNoteDate.getDate()).padStart(2, "0");
+const dailyNotePath =
+  `Reflections/Daily Notes ${dailyNoteYear}/${dailyNoteYear}-${dailyNoteMonth}-${dailyNoteDay}.md`;
+
+const dailyNote = this.app.vault.getAbstractFileByPath(dailyNotePath);
+
+const todayCard = el.createDiv({
+  cls: "homebase-today-card"
+});
+
+const todayHeader = todayCard.createDiv({
+  cls: "homebase-today-header"
+});
+
+todayHeader.createEl("span", {
+  text: "TODAY",
+  cls: "homebase-section-label"
+});
+
+todayHeader.createEl("span", {
+  text: `${dailyNoteMonth}/${dailyNoteDay}/${dailyNoteYear}`,
+  cls: "homebase-today-date"
+});
+
+const todayContent = todayCard.createDiv({
+  cls: "homebase-today-content"
+});
+
+const todoColumn = todayContent.createDiv({
+  cls: "homebase-today-column"
+});
+
+const thoughtsColumn = todayContent.createDiv({
+  cls: "homebase-today-column"
+});
+todoColumn.createEl("div", {
+  text: "TO-DO",
+  cls: "homebase-column-heading"
+});
+
+thoughtsColumn.createEl("div", {
+  text: "THOUGHTS ON TODAY",
+  cls: "homebase-column-heading"
+});
+
+
+if (dailyNote instanceof TFile) {
+
+  const content = await this.app.vault.read(dailyNote);
+  const getSection = (
+    markdown: string,
+    heading: string,
+    nextHeading?: string
+  ): string => {
+
+    const escapedHeading = heading.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+    const startRegex = new RegExp(
+      `^#\\s+${escapedHeading}\\s*$`,
+      "m"
+    );
+
+    const startMatch = startRegex.exec(markdown);
+
+    if (!startMatch) return "";
+
+    const start = startMatch.index + startMatch[0].length;
+
+    let end = markdown.length;
+
+    if (nextHeading) {
+      const remaining = markdown.slice(start);
+
+      const escapedNext = nextHeading.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+      const endRegex = new RegExp(
+        `^#\\s+${escapedNext}\\s*$`,
+        "m"
+      );
+
+      const endMatch = endRegex.exec(remaining);
+
+      if (endMatch) {
+        end = start + endMatch.index;
+      }
+    } else {
+      const remaining = markdown.slice(start);
+      const endMatch = /^#\s+/m.exec(remaining);
+
+      if (endMatch) {
+        end = start + endMatch.index;
+      }
+    }
+
+    return markdown.slice(start, end).trim();
+  };
+
+  const todoText = getSection(content, "To-Do");
+  const thoughtsText = getSection(
+    content,
+    "Thoughts on Today",
+    "Tomorrow"
+  );
+
+
+  // ------------------------------------------
+  // RENDER TASKS
+  // ------------------------------------------
+
+  if (todoText) {
+
+    const taskLines = todoText.split("\n");
+
+    // Track duplicate tasks so we can identify the correct one
+    const taskOccurrences = new Map<string, number>();
+
+    taskLines.forEach(line => {
+
+      const match = line.match(/^(\s*)-\s+(.*)$/);
+      if (!match) return;
+
+      const indentation = (match[1] ?? "").length;
+      let taskText = match[2] ?? "";
+
+      const checkboxMatch = taskText.match(/^\[([ xX])\]\s*(.*)$/);
+
+      let isChecked = checkboxMatch?.[1]?.toLowerCase() === "x";
+
+      if (checkboxMatch) {
+        taskText = checkboxMatch[2] ?? "";
+      }
+
+      const task = todoColumn.createDiv({
+        cls: "homebase-task"
+      });
+
+      const level = Math.min(Math.floor(indentation / 2), 4);
+      task.style.paddingLeft = `${level * 16}px`;
+
+      const checkbox = task.createEl("input", {
+        type: "checkbox",
+        cls: "homebase-task-checkbox"
+      });
+
+      checkbox.checked = isChecked;
+
+      task.createSpan({
+        text: taskText,
+        cls: "homebase-task-text"
+      });
+
+      // Identify this task by its indentation, text, and occurrence
+      const identity = `${indentation}\u0000${taskText}`;
+      const occurrence = taskOccurrences.get(identity) ?? 0;
+
+      taskOccurrences.set(identity, occurrence + 1);
+
+      // Synchronize checkbox with the daily note
+      checkbox.addEventListener("change", async () => {
+
+        try {
+
+          await this.app.vault.process(dailyNote, markdown => {
+
+            const lines = markdown.split("\n");
+
+            let insideTodo = false;
+            let currentOccurrence = 0;
+
+            for (let i = 0; i < lines.length; i++) {
+              const line = lines[i];
+
+              if (line === undefined) continue;
+
+              if (/^#\s+To-Do\s*$/.test(line)) {
+                insideTodo = true;
+                continue;
+              }
+
+              if (insideTodo &&
+                  (/^#\s+/.test(line) || line.trim() === "---")) {
+                break;
+              }
+
+              if (!insideTodo) continue;
+
+              const taskMatch = line.match(
+                /^(\s*)-\s+(?:\[([ xX])\]\s*)?(.*)$/
+              );
+
+              if (!taskMatch) continue;
+
+              const sameTask =
+                (taskMatch[1] ?? "").length === indentation &&
+                (taskMatch[3] ?? "") === taskText;
+
+              if (!sameTask) continue;
+
+              if (currentOccurrence === occurrence) {
+
+                const checkboxSyntax = checkbox.checked
+                  ? "[x]"
+                  : "[ ]";
+
+                lines[i] =
+                  `${taskMatch[1]}- ${checkboxSyntax} ${taskText}`;
+
+                break;
+              }
+
+              currentOccurrence++;
+
+            }
+
+            return lines.join("\n");
+
+          });
+
+        } catch (error) {
+          console.error("Homebase: Could not update task", error);
+          checkbox.checked = !checkbox.checked;
+        }
+
+      });
+
+    });
+
+  } else {
+
+    todoColumn.createEl("div", {
+      text: "No tasks found.",
+      cls: "homebase-empty"
+    });
+
+  }
+
+
+  
+  // ------------------------------------------
+  // RENDER THOUGHTS
+  // ------------------------------------------
+
+  const thoughtsBox = thoughtsColumn.createEl("textarea", {
+    cls: "homebase-thoughts-box",
+    attr: {
+      placeholder: "What's on your mind today?"
+    }
+  });
+
+  thoughtsBox.value = thoughtsText;
+
+  // Save thoughts into the daily note
+  let thoughtsSaveTimeout: ReturnType<typeof setTimeout>;
+
+  const saveThoughts = async () => {
+
+    try {
+
+      await this.app.vault.process(dailyNote, markdown => {
+
+        const headingRegex = /^#\s+Thoughts on Today\s*$/m;
+        const nextHeadingRegex = /^#\s+Tomorrow\s*$/m;
+
+        const headingMatch = headingRegex.exec(markdown);
+
+        if (!headingMatch) return markdown;
+
+        const contentStart =
+          headingMatch.index + headingMatch[0].length;
+
+        const remaining = markdown.slice(contentStart);
+
+        const nextHeadingMatch = nextHeadingRegex.exec(remaining);
+
+        if (!nextHeadingMatch) return markdown;
+
+        const contentEnd =
+          contentStart + nextHeadingMatch.index;
+
+        const before = markdown.slice(0, contentStart);
+        const after = markdown.slice(contentEnd);
+
+        const newThoughts = thoughtsBox.value.trim();
+
+        return `${before}\n\n${newThoughts}\n\n${after}`;
+
+      });
+
+    } catch (error) {
+
+      console.error("Homebase: Could not save thoughts", error);
+
+    }
+
+  };
+
+  thoughtsBox.addEventListener("input", () => {
+
+    clearTimeout(thoughtsSaveTimeout);
+
+    thoughtsSaveTimeout = setTimeout(() => {
+      void saveThoughts();
+    }, 600);
+
+  });
+
+  thoughtsBox.addEventListener("blur", () => {
+
+    clearTimeout(thoughtsSaveTimeout);
+    void saveThoughts();
+
+  });
+  thoughtsBox.value = thoughtsText;
+
+  thoughtsBox.readOnly = false
+
+} else {
+
+  todayCard.createEl("div", {
+    text: `Today's note wasn't found: ${dailyNotePath}`,
+    cls: "homebase-empty"
+  });
+
+}
 
       }
     );

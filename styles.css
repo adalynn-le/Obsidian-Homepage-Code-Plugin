@@ -308,3 +308,114 @@
 .homebase-life-calendar-dot.is-today {
     background: var(--color-accent);
 }
+.homebase-today-card {
+    margin-top: 28px;
+    padding: 20px;
+    border: 2px solid var(--background-modifier-border);
+    width: 100%;
+    max-width: 900px;
+}
+.homebase-today-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.homebase-section-label {
+    font-family: var(--font-monospace);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+}
+
+.homebase-today-date {
+    font-family: var(--font-monospace);
+    font-size: 11px;
+    color: var(--text-faint);
+}
+.homebase-today-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+}
+
+.homebase-today-column {
+    min-width: 0;
+}
+.homebase-column-heading {
+    font-family: var(--font-monospace);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+
+    padding-bottom: 9px;
+    margin-bottom: 12px;
+
+    border-bottom: 1px solid var(--background-modifier-border);
+}
+.homebase-task {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+
+    margin: 6px 0;
+
+    font-family: var(--font-monospace);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.homebase-task-checkbox {
+    flex: 0 0 auto;
+
+    width: 13px;
+    height: 13px;
+
+    margin: 2px 0 0;
+
+    accent-color: var(--color-accent);
+    opacity: 1;
+    cursor: default;
+}
+
+.homebase-task-text {
+    color: var(--text-normal);
+    overflow-wrap: anywhere;
+}
+
+.homebase-task-checkbox:checked + .homebase-task-text {
+    color: var(--text-muted);
+    text-decoration: line-through;
+}
+.homebase-thoughts-box {
+    display: block;
+
+    width: 100%;
+    min-height: 230px;
+    resize: vertical;
+
+    padding: 10px;
+
+    background: var(--background-primary);
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 4px;
+
+    color: var(--text-normal);
+
+    font-family: var(--font-monospace);
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.homebase-thoughts-box:focus {
+    outline: none;
+    border-color: var(--color-accent);
+}
+@media (max-width: 700px) {
+    .homebase-today-content {
+        grid-template-columns: 1fr;
+    }
+}
