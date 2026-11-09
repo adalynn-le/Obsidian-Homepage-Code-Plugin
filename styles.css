@@ -236,7 +236,7 @@
     justify-items: center;
     margin-top: 28px;
     padding: 20px;
-    width: min-content;
+    width: 650px;
 }
 
 
@@ -313,7 +313,7 @@
     padding: 20px;
     border: 2px solid var(--background-modifier-border);
     width: 100%;
-    max-width: 900px;
+    max-width: 650px;
 }
 .homebase-today-header {
     display: flex;
@@ -338,11 +338,12 @@
 .homebase-today-content {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 28px;
+    gap: 5px;
 }
 
 .homebase-today-column {
     min-width: 0;
+    max-width: 300px;
 }
 .homebase-column-heading {
     font-family: var(--font-monospace);
@@ -353,7 +354,6 @@
 
     padding-bottom: 9px;
     margin-bottom: 12px;
-
     border-bottom: 1px solid var(--background-modifier-border);
 }
 .homebase-task {
@@ -366,6 +366,7 @@
     font-family: var(--font-monospace);
     font-size: 12px;
     line-height: 1.5;
+    max-width: 200px;
 }
 
 .homebase-task-checkbox {
@@ -396,7 +397,7 @@
     width: 100%;
     min-height: 230px;
     resize: vertical;
-
+    max-width: 300px;
     padding: 10px;
 
     background: var(--background-primary);
