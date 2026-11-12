@@ -972,6 +972,271 @@ if (dailyNote instanceof TFile) {
 
 }
 
+const habitsSection = el.createDiv({
+  cls: "homebase-habits"
+});
+
+const habitsTitle = habitsSection.createDiv({
+  cls: "homebase-habits-title"
+});
+
+habitsTitle.setText("HABITS");
+
+const habitsGrid = habitsSection.createDiv({
+  cls: "homebase-habits-grid"
+});
+
+// ------------------------------------------
+// HELPERS
+// ------------------------------------------
+
+type HabitDay = {
+  date: Date;
+  path: string;
+  value: number | null;
+};
+
+const getDailyNotePath = (date: Date): string => {
+
+  const year = date.getFullYear();
+
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `Reflections/Daily Notes ${year}/${year}-${month}-${day}.md`;
+};
+
+
+// Read a YAML value from a daily note
+const getFrontmatterValue = (
+  markdown: string,
+  key: string
+): number | null => {
+
+  const frontmatterMatch = markdown.match(
+    /^---\s*\n([\s\S]*?)\n---/
+  );
+
+  if (!frontmatterMatch) return null;
+
+  const frontmatter = frontmatterMatch[1];
+  if (frontmatter === undefined) return null;
+
+  const regex = new RegExp(
+    `^${key}:\\s*([0-9.]+)\\s*$`,
+    "m"
+  );
+
+  const match = frontmatter.match(regex);
+
+  if (!match) return null;
+
+  const value = Number(match[1]);
+
+  return Number.isFinite(value) ? value : null;
+};
+
+
+// Get the last 7 days
+const getLastSevenDays = async (
+  key: string
+): Promise<HabitDay[]> => {
+
+  const days: HabitDay[] = [];
+
+  const today = new Date();
+
+  // Start with 6 days ago and finish today
+  for (let i = 6; i >= 0; i--) {
+
+    const date = new Date(today);
+
+    date.setHours(0, 0, 0, 0);
+    date.setDate(today.getDate() - i);
+
+    const path = getDailyNotePath(date);
+
+    const file = this.app.vault.getAbstractFileByPath(path);
+
+    let value: number | null = null;
+
+    if (file instanceof TFile) {
+
+      const content = await this.app.vault.read(file);
+
+      value = getFrontmatterValue(content, key);
+
+    }
+
+    days.push({
+      date,
+      path,
+      value
+    });
+  }
+
+  return days;
+};
+
+
+
+const createHabitPanel = async (
+  title: string,
+  subtitle: string,
+  key: string,
+  unit: string,
+  thresholds: number[]
+) => {
+
+  const panel = habitsGrid.createDiv({
+    cls: "homebase-habit-panel"
+  });
+
+  const header = panel.createDiv({
+    cls: "homebase-habit-header"
+  });
+
+  header.createEl("div", {
+    text: title,
+    cls: "homebase-habit-title"
+  });
+
+  header.createEl("div", {
+    text: subtitle,
+    cls: "homebase-habit-subtitle"
+  });
+
+  const heatmap = panel.createDiv({
+    cls: "homebase-habit-heatmap"
+  });
+
+  const days = await getLastSevenDays(key);
+
+  days.forEach(day => {
+
+    const cell = heatmap.createDiv({
+      cls: "homebase-habit-cell"
+    });
+
+    if (day.value === null) {
+
+      cell.addClass("is-empty");
+
+    } else {
+
+      let intensity = 0;
+
+      for (let i = 0; i < thresholds.length; i++) {
+        const threshold = thresholds[i];
+
+        if (threshold !== undefined && day.value >= threshold) {
+          intensity = i + 1;
+        }
+
+      }
+
+      cell.addClass(`intensity-${intensity}`);
+
+      const formattedDate = day.date.toLocaleDateString(
+        undefined,
+        {
+          weekday: "long",
+          month: "short",
+          day: "numeric"
+        }
+      );
+
+      cell.setAttribute(
+        "aria-label",
+        `${formattedDate}: ${day.value}${unit}`
+      );
+
+      cell.setAttribute(
+        "title",
+        `${formattedDate}\n${day.value}${unit}`
+      );
+    }
+
+    const today = new Date();
+
+    if (
+      day.date.getFullYear() === today.getFullYear() &&
+      day.date.getMonth() === today.getMonth() &&
+      day.date.getDate() === today.getDate()
+    ) {
+      cell.addClass("is-today");
+    }
+
+  });
+
+  const values = days
+    .map(day => day.value)
+    .filter((value): value is number => value !== null);
+
+  const summary = panel.createDiv({
+    cls: "homebase-habit-summary"
+  });
+
+  if (values.length === 0) {
+
+    summary.setText("No data yet.");
+
+  } else {
+
+    if (key === "sleep") {
+
+      const average =
+        values.reduce((sum, value) => sum + value, 0)
+        / values.length;
+
+      summary.setText(
+        `Avg ${average.toFixed(1)}h`
+      );
+
+    } else {
+
+      const total =
+        values.reduce((sum, value) => sum + value, 0);
+
+      const hours = Math.floor(total / 60);
+      const minutes = total % 60;
+
+      if (hours > 0) {
+
+        summary.setText(
+          `${hours}h ${minutes}m`
+        );
+
+      } else {
+
+        summary.setText(
+          `${minutes}m`
+        );
+
+      }
+    }
+  }
+
+  return panel;
+};
+
+
+
+await createHabitPanel(
+  "SLEEP",
+  "LAST 7 DAYS",
+  "sleep",
+  "h",
+  [5, 6, 7, 8]
+);
+
+await createHabitPanel(
+  "READING",
+  "LAST 7 DAYS",
+  "reading",
+  "m",
+  [1, 15, 30, 60]
+);
       }
     );
   }
