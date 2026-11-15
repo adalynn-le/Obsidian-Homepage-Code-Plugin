@@ -421,9 +421,11 @@
     }
 }
 .homebase-habits {
-    width: 100%;
-    max-width: 900px;
     margin-top: 28px;
+    padding: 20px;
+    border: 2px solid var(--background-modifier-border);
+    width: 100%;
+    max-width: 300px;
 }
 
 .homebase-habits-title {
@@ -438,7 +440,7 @@
 .homebase-habits-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 28px;
+    gap: 5px;
 }
 
 .homebase-habit-panel {
@@ -539,4 +541,21 @@
         grid-template-columns: 1fr;
     }
 
+}
+.homebase-flex-box{
+    display: flex;
+    flex-direction: row;
+    gap: 28px;
+}
+.homebase-row-one{
+    width: min-content;
+    display: flex;
+    flex-direction: column; 
+    gap: 28px;
+}
+.homebase-row-two{
+    width: 100%;
+    display: flex;
+    flex-direction: column; 
+    gap: 28px;
 }

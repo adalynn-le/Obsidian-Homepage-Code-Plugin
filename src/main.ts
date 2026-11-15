@@ -373,7 +373,15 @@ export default class HomebasePlugin extends Plugin {
 
 
         updateTime();
-
+        const flexBox = el.createDiv({
+          cls: "homebase-flex-box"
+        })
+        const rowOne = flexBox.createDiv({
+          cls: "homebase-row-one"
+        })
+        const rowTwo = flexBox.createDiv({
+          cls: "homebase-row-two"
+        })
 
         const interval = window.setInterval(
           updateTime,
@@ -384,7 +392,7 @@ export default class HomebasePlugin extends Plugin {
           window.clearInterval(interval);
         });
 
-        const calendarArea = el.createDiv({
+        const calendarArea = rowOne.createDiv({
           cls: "homebase-calendar-area"
         });
         const calendarContainer =
@@ -653,7 +661,7 @@ const dailyNotePath =
 
 const dailyNote = this.app.vault.getAbstractFileByPath(dailyNotePath);
 
-const todayCard = el.createDiv({
+const todayCard = rowOne.createDiv({
   cls: "homebase-today-card"
 });
 
@@ -752,15 +760,11 @@ if (dailyNote instanceof TFile) {
   );
 
 
-  // ------------------------------------------
-  // RENDER TASKS
-  // ------------------------------------------
 
   if (todoText) {
 
     const taskLines = todoText.split("\n");
 
-    // Track duplicate tasks so we can identify the correct one
     const taskOccurrences = new Map<string, number>();
 
     taskLines.forEach(line => {
@@ -885,9 +889,6 @@ if (dailyNote instanceof TFile) {
 
 
   
-  // ------------------------------------------
-  // RENDER THOUGHTS
-  // ------------------------------------------
 
   const thoughtsBox = thoughtsColumn.createEl("textarea", {
     cls: "homebase-thoughts-box",
@@ -898,7 +899,6 @@ if (dailyNote instanceof TFile) {
 
   thoughtsBox.value = thoughtsText;
 
-  // Save thoughts into the daily note
   let thoughtsSaveTimeout: ReturnType<typeof setTimeout>;
 
   const saveThoughts = async () => {
@@ -972,7 +972,7 @@ if (dailyNote instanceof TFile) {
 
 }
 
-const habitsSection = el.createDiv({
+const habitsSection = rowTwo.createDiv({
   cls: "homebase-habits"
 });
 
@@ -985,10 +985,6 @@ habitsTitle.setText("HABITS");
 const habitsGrid = habitsSection.createDiv({
   cls: "homebase-habits-grid"
 });
-
-// ------------------------------------------
-// HELPERS
-// ------------------------------------------
 
 type HabitDay = {
   date: Date;
@@ -1007,7 +1003,6 @@ const getDailyNotePath = (date: Date): string => {
 };
 
 
-// Read a YAML value from a daily note
 const getFrontmatterValue = (
   markdown: string,
   key: string
@@ -1037,7 +1032,6 @@ const getFrontmatterValue = (
 };
 
 
-// Get the last 7 days
 const getLastSevenDays = async (
   key: string
 ): Promise<HabitDay[]> => {
@@ -1046,7 +1040,6 @@ const getLastSevenDays = async (
 
   const today = new Date();
 
-  // Start with 6 days ago and finish today
   for (let i = 6; i >= 0; i--) {
 
     const date = new Date(today);
