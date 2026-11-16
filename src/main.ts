@@ -579,20 +579,20 @@ export default class HomebasePlugin extends Plugin {
         );
 
 
-        const startDate =
+        const lifeCalendarStartDate =
           new Date(2026, 7, 15);
 
-        startDate.setHours(
+        lifeCalendarStartDate.setHours(
           0,
           0,
           0,
           0
         );
 
-        const today =
+        const lifeCalendarToday =
           new Date();
 
-        today.setHours(
+        lifeCalendarToday.setHours(
           0,
           0,
           0,
@@ -606,8 +606,8 @@ export default class HomebasePlugin extends Plugin {
             0,
             Math.floor(
               (
-                today.getTime() -
-                startDate.getTime()
+                lifeCalendarToday.getTime() -
+                lifeCalendarStartDate.getTime()
               ) /
               millisecondsPerDay
             )
@@ -618,7 +618,7 @@ export default class HomebasePlugin extends Plugin {
             Math.ceil(
               (
                 targetDate.getTime() -
-                today.getTime()
+                lifeCalendarToday.getTime()
               ) /
               millisecondsPerDay
             )
@@ -802,13 +802,11 @@ if (dailyNote instanceof TFile) {
         cls: "homebase-task-text"
       });
 
-      // Identify this task by its indentation, text, and occurrence
       const identity = `${indentation}\u0000${taskText}`;
       const occurrence = taskOccurrences.get(identity) ?? 0;
 
       taskOccurrences.set(identity, occurrence + 1);
 
-      // Synchronize checkbox with the daily note
       checkbox.addEventListener("change", async () => {
 
         try {
@@ -1230,7 +1228,171 @@ await createHabitPanel(
   "m",
   [1, 15, 30, 60]
 );
+// ==========================================
+// NOTE ACTIVITY GRAPH
+// ==========================================
+
+const activitySection = el.createDiv({
+  cls: "homebase-activity"
+});
+
+const activityHeader = activitySection.createDiv({
+  cls: "homebase-activity-header"
+});
+
+activityHeader.createDiv({
+  text: "ACTIVITY",
+  cls: "homebase-section-label"
+});
+
+const activityGraph = activitySection.createDiv({
+  cls: "homebase-activity-graph"
+});
+
+
+// ------------------------------------------
+// COLLECT NOTE CREATION DATA
+// ------------------------------------------
+
+const today = new Date();
+today.setHours(23, 59, 59, 999);
+
+const daysToShow = 90;
+
+const startDate = new Date(today);
+startDate.setDate(startDate.getDate() - daysToShow);
+startDate.setHours(0, 0, 0, 0);
+
+
+// Count notes created on each day
+const notesByDay: Record<string, number> = {};
+
+for (let i = 0; i <= daysToShow; i++) {
+
+  const date = new Date(startDate);
+  date.setDate(startDate.getDate() + i);
+
+  const key = date.toISOString().slice(0, 10);
+
+  notesByDay[key] = 0;
+}
+
+
+// Count Markdown notes
+for (const file of this.app.vault.getMarkdownFiles()) {
+
+  const created = new Date(file.stat.ctime);
+
+  if (
+    created >= startDate &&
+    created <= today
+  ) {
+
+    const key = created
+      .toISOString()
+      .slice(0, 10);
+
+    if (notesByDay[key] !== undefined) {
+      notesByDay[key]++;
+    }
+  }
+}
+
+
+// ------------------------------------------
+// CONVERT TO CUMULATIVE TOTAL
+// ------------------------------------------
+
+const points: number[] = [];
+
+let total = 0;
+
+for (let i = 0; i <= daysToShow; i++) {
+
+  const date = new Date(startDate);
+  date.setDate(startDate.getDate() + i);
+
+  const key = date.toISOString().slice(0, 10);
+
+  total += notesByDay[key] ?? 0;
+
+  points.push(total);
+}
+
+
+const width = 700;
+const height = 100;
+
+const padding = 4;
+
+const maxValue = Math.max(...points);
+
+const svg = activityGraph.createSvg("svg");
+
+svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+svg.setAttribute("preserveAspectRatio", "none");
+svg.addClass("homebase-activity-svg");
+
+if (maxValue > 0) {
+
+  const graphWidth = width - padding * 2;
+  const graphHeight = height - padding * 2;
+
+  const coordinates = points.map((value, index) => {
+
+    const x =
+      padding +
+      (index / (points.length - 1)) * graphWidth;
+
+    const y =
+      height -
+      padding -
+      (value / maxValue) * graphHeight;
+
+    return `${x},${y}`;
+  });
+
+
+  const polyline =
+    svg.createSvg("polyline");
+
+  polyline.setAttribute(
+    "points",
+    coordinates.join(" ")
+  );
+
+  polyline.addClass(
+    "homebase-activity-line"
+  );
+  const lastPoint =
+    (coordinates[coordinates.length - 1] ?? "0,0")
+      .split(",");
+
+  const endDot =
+    svg.createSvg("circle");
+
+  endDot.setAttribute(
+    "cx",
+    lastPoint[0] ?? "0"
+  );
+
+  endDot.setAttribute(
+    "cy",
+    lastPoint[1] ?? "0"
+  );
+
+  endDot.setAttribute(
+    "r",
+    "2.5"
+  );
+
+  endDot.addClass(
+    "homebase-activity-end"
+  );
+}
       }
     );
+    
   }
+  
 }

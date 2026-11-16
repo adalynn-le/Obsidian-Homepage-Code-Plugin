@@ -1,19 +1,22 @@
 {
-	"compilerOptions": {
-		"inlineSourceMap": true,
-		"inlineSources": true,
-		"module": "ESNext",
-		"target": "ES2021",
-		"strict": true,
-		"noImplicitReturns": true,
-		"noFallthroughCasesInSwitch": true,
-		"noUncheckedIndexedAccess": true,
-		"moduleResolution": "Bundler",
-		"isolatedModules": true,
-		"skipLibCheck": true,
-		"forceConsistentCasingInFileNames": true,
-		"allowSyntheticDefaultImports": true,
-		"lib": ["ES2021", "DOM"]
-	},
-	"include": ["src/**/*.ts"]
+  "name": "obsidian-sample-plugin",
+  "type": "module",
+  "keywords": [],
+  "license": "0-BSD",
+  "scripts": {
+    "dev": "esbuild src/main.ts --bundle --external:obsidian --external:electron --external:@codemirror/* --format=cjs --outfile=main.js --watch",
+    "build": "esbuild src/main.ts --bundle --external:obsidian --external:electron --external:@codemirror/* --format=cjs --outfile=main.js"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.4",
+    "@types/node": "^22.15.17",
+    "esbuild": "0.25.5",
+    "eslint": "^9.39.4",
+    "eslint-plugin-obsidianmd": "^0.4.0",
+    "globals": "^17.6.0",
+    "jiti": "^2.6.1",
+    "obsidian": "latest",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.59.1"
+  }
 }
