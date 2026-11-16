@@ -425,7 +425,7 @@
     padding: 20px;
     border: 2px solid var(--background-modifier-border);
     width: 100%;
-    max-width: 300px;
+    max-width: 500px;
 }
 
 .homebase-habits-title {
@@ -440,7 +440,7 @@
 .homebase-habits-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 5px;
+    gap: 10px;
 }
 
 .homebase-habit-panel {
