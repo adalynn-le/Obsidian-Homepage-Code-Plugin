@@ -551,22 +551,42 @@
     width: min-content;
     display: flex;
     flex-direction: column; 
-    gap: 28px;
+    gap: 15px;
 }
 .homebase-row-two{
     width: 100%;
     display: flex;
     flex-direction: column; 
+    gap: 15px;
+}
+.homebase-row-three{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
     gap: 28px;
+}
+.homebase-row-four{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.homebase-row-five{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 /* ==========================================
    NOTE ACTIVITY GRAPH
    ========================================== */
 
 .homebase-activity {
-    width: 100%;
-    max-width: 900px;
     margin-top: 28px;
+    padding: 20px;
+    border: 2px solid var(--background-modifier-border);
+    width: 100%;
+    max-width: 500px;
 }
 
 .homebase-activity-header {
@@ -595,4 +615,52 @@
 
 .homebase-activity-end {
     fill: var(--color-accent);
+}
+/* ==========================================
+   RECENTLY OPENED
+   ========================================== */
+
+.homebase-recent {
+    margin-top: 28px;
+    padding: 20px;
+    border: 2px solid var(--background-modifier-border);
+    width: 100%;
+    max-width: 500px;
+}
+
+.homebase-recent-list {
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+}
+
+.homebase-recent-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+
+    padding: 8px 0;
+
+    border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.homebase-recent-link {
+    font-family: var(--font-monospace);
+    font-size: 12px;
+
+    color: var(--text-normal);
+    text-decoration: none;
+}
+
+.homebase-recent-link:hover {
+    color: var(--color-accent);
+}
+
+.homebase-recent-path {
+    font-family: var(--font-monospace);
+    font-size: 10px;
+
+    color: var(--text-faint);
+    text-align: right;
 }

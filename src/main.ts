@@ -382,6 +382,15 @@ export default class HomebasePlugin extends Plugin {
         const rowTwo = flexBox.createDiv({
           cls: "homebase-row-two"
         })
+        const rowThree = rowTwo.createDiv({
+          cls: "homebase-row-three"
+        })
+        const rowFour = rowThree.createDiv({
+          cls: "homebase-row-four"
+        })
+        const rowFive = rowThree.createDiv({
+          cls: "homebase-row-five"
+        })
 
         const interval = window.setInterval(
           updateTime,
@@ -970,7 +979,7 @@ if (dailyNote instanceof TFile) {
 
 }
 
-const habitsSection = rowTwo.createDiv({
+const habitsSection = rowFour.createDiv({
   cls: "homebase-habits"
 });
 
@@ -1232,7 +1241,7 @@ await createHabitPanel(
 // NOTE ACTIVITY GRAPH
 // ==========================================
 
-const activitySection = el.createDiv({
+const activitySection = rowFour.createDiv({
   cls: "homebase-activity"
 });
 
@@ -1278,7 +1287,6 @@ for (let i = 0; i <= daysToShow; i++) {
 }
 
 
-// Count Markdown notes
 for (const file of this.app.vault.getMarkdownFiles()) {
 
   const created = new Date(file.stat.ctime);
@@ -1390,9 +1398,52 @@ if (maxValue > 0) {
     "homebase-activity-end"
   );
 }
+const recentSection = rowFour.createDiv({
+    cls: "homebase-recent"
+});
+
+recentSection.createDiv({
+    text: "RECENTLY OPENED",
+    cls: "homebase-section-label"
+});
+
+const recentList = recentSection.createDiv({
+    cls: "homebase-recent-list"
+});
+
+const recentFiles = this.app.workspace
+    .getLastOpenFiles()
+    .slice(0, 5);
+
+for (const filePath of recentFiles) {
+
+    const file = this.app.vault.getAbstractFileByPath(filePath);
+
+    if (!(file instanceof TFile)) continue;
+
+    const item = recentList.createDiv({
+        cls: "homebase-recent-item"
+    });
+
+    const link = item.createEl("a", {
+        text: file.basename,
+        cls: "homebase-recent-link"
+    });
+
+    link.addEventListener("click", () => {
+        this.app.workspace.openLinkText(
+            file.path,
+            "",
+            false
+        );
+    });
+
+    item.createDiv({
+        text: file.parent?.path || "Vault",
+        cls: "homebase-recent-path"
+    });
+}
       }
     );
-    
   }
-  
 }
