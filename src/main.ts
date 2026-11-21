@@ -1443,7 +1443,109 @@ for (const filePath of recentFiles) {
         cls: "homebase-recent-path"
     });
 }
-      }
+
+// ==========================================
+// RANDOM QUOTE
+// ==========================================
+
+const quoteSection = el.createDiv({
+    cls: "homebase-quote"
+});
+
+// Header
+const quoteLabel = quoteSection.createDiv({
+    cls: "homebase-quote-label"
+});
+
+quoteLabel.innerHTML = `<span class="homebase-quote-symbol">✦</span> QUOTE OF THE MOMENT`;
+
+// Quote content
+const quoteContent = quoteSection.createDiv({
+    cls: "homebase-quote-content"
+});
+
+// Find quote notes
+const quoteFiles = this.app.vault.getMarkdownFiles().filter(file => {
+    // Change "Quotes/" if your quote notes live somewhere else
+    return file.path.startsWith("Quotes/");
+});
+
+// Only continue if we actually have quotes
+if (quoteFiles.length > 0) {
+
+    // Pick a random quote
+    const randomQuote =
+        quoteFiles[Math.floor(Math.random() * quoteFiles.length)];
+
+    // Read the quote note
+    const quoteData = await this.app.vault.read(randomQuote);
+
+    // Extract speaker from frontmatter
+    const speakerMatch = quoteData.match(
+        /^speaker:\s*(.+)$/m
     );
-  }
+
+    const speaker = speakerMatch
+        ? speakerMatch[1].trim()
+        : "";
+
+    // Extract everything under "# Quote"
+    const quoteMatch = quoteData.match(
+        /^# Quote\s*\n([\s\S]*?)(?=\n# |\n---|\Z)/m
+    );
+
+    let quoteText = quoteMatch
+        ? quoteMatch[1].trim()
+        : "";
+
+    // Remove markdown formatting if necessary
+    quoteText = quoteText
+        .replace(/^>\s?/gm, "")
+        .replace(/\*\*/g, "")
+        .trim();
+
+    // Make the entire box clickable
+    quoteSection.addEventListener("click", async () => {
+
+        const leaf = this.app.workspace.getLeaf("tab");
+
+        await leaf.openFile(randomQuote);
+
+    });
+
+    // Quote text
+    const quoteTextEl = quoteContent.createDiv({
+        cls: "homebase-quote-text"
+    });
+
+    quoteTextEl.textContent = `"${quoteText}"`;
+
+    // Speaker
+    if (speaker) {
+
+        const speakerEl = quoteContent.createDiv({
+            cls: "homebase-quote-speaker"
+        });
+
+        speakerEl.textContent = `— ${speaker}`;
+
+    }
+
+    // Tooltip
+    quoteSection.setAttr(
+        "aria-label",
+        `Open quote: ${randomQuote.basename}`
+    );
+
+} else {
+
+    quoteContent.createDiv({
+        text: "No quotes found.",
+        cls: "homebase-quote-empty"
+    });
+
+}
+    }
+    )
+}
 }
